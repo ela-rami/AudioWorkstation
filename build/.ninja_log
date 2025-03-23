@@ -1,27 +1,36 @@
 # ninja log v6
-1	82	1742758854739394859	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/CMakeFiles/cmake.verify_globs	b1cc5791ff042f11
+6	145	1742761350513281485	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/CMakeFiles/cmake.verify_globs	b1cc5791ff042f11
+14019	25634	1742758868757134934	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_dsp/juce_dsp.mm.o	5c622d2ae1c9b5cd
+346	13591	1742758855084599991	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o	34a1fc70c97f04c6
 82	97	1742758854820406883	AudioWorkstation_artefacts/Debug/Audio Workstation.app/Contents/Resources/RecentFilesMenuTemplate.nib	487f612180d890fc
+348	9912	1742758855086127324	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_events/juce_events.mm.o	aa4fbdd6ee9d1983
+349	446	1742758855086744722	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o	5a2608e94ef4c0dd
+139	4897	1742761198090422364	CMakeFiles/AudioWorkstation.dir/Source/MainComponent.cpp.o	8052b3a98c14f521
+347	17816	1742758855085489525	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_core/juce_core.mm.o	4c541acbfe60f2cf
+138	4483	1742761198090090612	CMakeFiles/AudioWorkstation.dir/Source/Main.cpp.o	b665e4c1b97892c2
 83	345	1742758855081478422	AudioWorkstation_artefacts/JuceLibraryCode/AudioWorkstation/PkgInfo	4d598232c8ac64ce
 83	345	1742758855081478422	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/AudioWorkstation_artefacts/JuceLibraryCode/AudioWorkstation/PkgInfo	4d598232c8ac64ce
-83	345	1742758855081942173	AudioWorkstation_artefacts/JuceLibraryCode/JuceHeader.h	11a4d761d55dd552
-83	345	1742758855081942173	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/AudioWorkstation_artefacts/JuceLibraryCode/JuceHeader.h	11a4d761d55dd552
-350	435	1742758855087873284	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o	8ed76a2fc7b579e2
-349	446	1742758855086744722	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_processors/juce_audio_processors_ara.cpp.o	5a2608e94ef4c0dd
 347	453	1742758855085086315	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_core/juce_core_CompilationTime.cpp.o	14832141b0701c10
-348	9912	1742758855086127324	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_events/juce_events.mm.o	aa4fbdd6ee9d1983
-345	10415	1742758855083502408	CMakeFiles/AudioWorkstation.dir/Source/Main.cpp.o	b665e4c1b97892c2
-346	10515	1742758855083810687	CMakeFiles/AudioWorkstation.dir/Source/MainComponent.cpp.o	8052b3a98c14f521
-10419	10797	1742758865156574161	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o	de74554604a27962
-346	13591	1742758855084599991	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_basics/juce_audio_basics.mm.o	34a1fc70c97f04c6
 348	14019	1742758855085812346	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_devices/juce_audio_devices.mm.o	741b8247c01f96db
-348	14541	1742758855086444758	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o	dd1463625af28165
-10797	16584	1742758865535136583	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_data_structures/juce_data_structures.mm.o	2b88f328cc9978b1
-347	17816	1742758855085489525	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_core/juce_core.mm.o	4c541acbfe60f2cf
-446	25138	1742758855184157459	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o	67f2fc82f326be22
-14019	25634	1742758868757134934	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_dsp/juce_dsp.mm.o	5c622d2ae1c9b5cd
-435	26135	1742758855173325711	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o	c50fd0234fd25802
 13592	27230	1742758868330000104	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_utils/juce_audio_utils.mm.o	b43831b5bbdc736c
-9927	30630	1742758864665295587	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o	b0850f6b68932a24
+10797	16584	1742758865535136583	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_data_structures/juce_data_structures.mm.o	2b88f328cc9978b1
+350	435	1742758855087873284	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_processors/juce_audio_processors_lv2_libs.cpp.o	8ed76a2fc7b579e2
+4897	5571	1742761202848709996	AudioWorkstation_artefacts/Debug/Audio Workstation.app/Contents/MacOS/Audio Workstation	71fb9484076eadbe
+435	26135	1742758855173325711	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_processors/juce_audio_processors.mm.o	c50fd0234fd25802
+348	14541	1742758855086444758	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_audio_formats/juce_audio_formats.mm.o	dd1463625af28165
+10419	10797	1742758865156574161	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_graphics/juce_graphics_Sheenbidi.c.o	de74554604a27962
 10515	31054	1742758865253162298	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_graphics/juce_graphics.mm.o	239161ab4c73b449
+136	4258	1742760767017227876	CMakeFiles/AudioWorkstation.dir/Source/Audio/AudioEngine.cpp.o	d64d4e36108b020e
+83	345	1742758855081942173	AudioWorkstation_artefacts/JuceLibraryCode/JuceHeader.h	11a4d761d55dd552
+446	25138	1742758855184157459	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_gui_extra/juce_gui_extra.mm.o	67f2fc82f326be22
 453	41918	1742758855191605006	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_gui_basics/juce_gui_basics.mm.o	e401b72422adecb8
-41921	42419	1742758896658662341	AudioWorkstation_artefacts/Debug/Audio Workstation.app/Contents/MacOS/Audio Workstation	1b0bf6c73cc26c8c
+83	345	1742758855081942173	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/AudioWorkstation_artefacts/JuceLibraryCode/JuceHeader.h	11a4d761d55dd552
+9927	30630	1742758864665295587	CMakeFiles/AudioWorkstation.dir/JUCE/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o	b0850f6b68932a24
+139	4656	1742761198090630469	CMakeFiles/AudioWorkstation.dir/Source/UI/FileLoaderComponent.cpp.o	7fffd557e0c29104
+6	91	1742761977965806867	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/CMakeFiles/cmake.verify_globs	b1cc5791ff042f11
+145	4730	1742761978105464489	CMakeFiles/AudioWorkstation.dir/Source/Main.cpp.o	b665e4c1b97892c2
+146	4895	1742761978105924237	CMakeFiles/AudioWorkstation.dir/Source/UI/FileLoaderComponent.cpp.o	7fffd557e0c29104
+145	4998	1742761978105116583	CMakeFiles/AudioWorkstation.dir/Source/Audio/AudioEngine.cpp.o	d64d4e36108b020e
+146	5081	1742761978105674422	CMakeFiles/AudioWorkstation.dir/Source/MainComponent.cpp.o	8052b3a98c14f521
+5081	5635	1742761983041533792	AudioWorkstation_artefacts/Debug/Audio Workstation.app/Contents/MacOS/Audio Workstation	71fb9484076eadbe
+8	103	1742762013065840822	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/CMakeFiles/cmake.verify_globs	b1cc5791ff042f11

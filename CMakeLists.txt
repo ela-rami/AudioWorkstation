@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 project(AudioWorkstation VERSION 0.1.0)
 
-# Aggiunge JUCE come sottoprogetto
+# Add JUCE as a subproject
 add_subdirectory(JUCE)
 
-# Imposta le opzioni JUCE
+# Set JUCE options
 juce_add_gui_app(AudioWorkstation
     PRODUCT_NAME "Audio Workstation" 
     VERSION 0.1.0
@@ -12,22 +12,27 @@ juce_add_gui_app(AudioWorkstation
     COMPANY_COPYRIGHT "Copyright (c) 2025 YourCompanyName"
 )
 
-# Imposta le opzioni del compilatore
+# Set compiler options
 target_compile_features(AudioWorkstation PRIVATE cxx_std_17)
 
-# Abilita il formato JUCE
+# Enable JUCE format
 juce_generate_juce_header(AudioWorkstation)
 
-# Aggiungi i file sorgente
-target_sources(AudioWorkstation PRIVATE
-    Source/Main.cpp
-    Source/MainComponent.cpp
+# Find all source files
+file(GLOB_RECURSE AudioWorkstation_SOURCES
+    "Source/*.cpp"
+    "Source/*.h"
 )
 
-# Includi le directory header
+# Add source files to the target
+target_sources(AudioWorkstation PRIVATE
+    ${AudioWorkstation_SOURCES}
+)
+
+# Include header directories
 target_include_directories(AudioWorkstation PRIVATE Source)
 
-# Collega le librerie JUCE necessarie
+# Link required JUCE libraries
 target_link_libraries(AudioWorkstation PRIVATE
     juce::juce_audio_basics
     juce::juce_audio_devices
@@ -43,7 +48,7 @@ target_link_libraries(AudioWorkstation PRIVATE
     juce::juce_gui_extra
 )
 
-# Opzioni per binari macOS
+# Options for macOS binaries
 set_target_properties(AudioWorkstation PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_BUNDLE_NAME "Audio Workstation"

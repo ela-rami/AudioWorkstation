@@ -30,7 +30,7 @@ public:
 
     void anotherInstanceStarted(const juce::String& commandLine) override
     {
-        // Gestione di istanze multiple se necessario
+        // Handle multiple instances if necessary
     }
 
     class MainWindow : public juce::DocumentWindow
