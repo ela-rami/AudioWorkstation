@@ -1,0 +1,13 @@
+{
+    "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.generator": "Ninja",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.DS_Store": true,
+        "build/": false
+    },
+    "editor.formatOnSave": true,
+    "C_Cpp.clang_format_style": "{ BasedOnStyle: LLVM, IndentWidth: 4, ColumnLimit: 100 }"
+}
