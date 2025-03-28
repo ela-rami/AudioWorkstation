@@ -1,0 +1,7 @@
+Premi Cmd+Shift+P e digita "CMake: Configure" per riconfigurare il progetto
+
+Dopo la configurazione, premi Cmd+Shift+P e digita "CMake: Build" per compilare
+
+Cmd+Shift+P CMake: Run Without Debugging
+
+Se VS Code mostra errori nel file JuceHeader.h, ricarica la finestra con Cmd+Shift+P e "Developer: Reload Window"
