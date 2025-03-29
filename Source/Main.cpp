@@ -45,8 +45,13 @@ public:
             setUsingNativeTitleBar(true);
             setContentOwned(new MainComponent(), true);
 
-            centreWithSize(800, 600);
+            // Aumentata la dimensione della finestra a 1600x900
+            centreWithSize(1600, 900);
             setVisible(true);
+            
+            // Imposta le dimensioni minime per la finestra
+            setResizeLimits(1200, 800, 3840, 2160);
+            setResizable(true, true);
         }
 
         void closeButtonPressed() override

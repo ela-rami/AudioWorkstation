@@ -30,7 +30,11 @@ target_sources(AudioWorkstation PRIVATE
 )
 
 # Include header directories
-target_include_directories(AudioWorkstation PRIVATE Source)
+target_include_directories(AudioWorkstation PRIVATE 
+    Source
+    Source/UI
+    Source/Audio
+)
 
 # Link required JUCE libraries
 target_link_libraries(AudioWorkstation PRIVATE
