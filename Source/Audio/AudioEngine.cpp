@@ -88,6 +88,9 @@ bool AudioEngine::loadFile(const juce::File& file)
     // Crea sorgente dal reader
     readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
     
+    // Imposta il looping per riproduzione continua
+    readerSource->setLooping(true);
+    
     // Configura la sorgente di trasporto
     transportSource.setSource(readerSource.get(), 
                               32768,                 // dimensione buffer prefetch
@@ -121,8 +124,15 @@ float AudioEngine::getPositionRelative() const
     if (readerSource.get() == nullptr)
         return 0.0f;
     
-    return transportSource.getCurrentPosition() / 
-           static_cast<float>(transportSource.getLengthInSeconds());
+    // Calcola la posizione relativa tenendo conto del looping
+    auto currentPosition = transportSource.getCurrentPosition();
+    auto totalLength = transportSource.getLengthInSeconds();
+    
+    // Se il file è in loop, manteniamo la posizione relativa tra 0.0 e 1.0
+    if (totalLength > 0.0)
+        return static_cast<float>(std::fmod(currentPosition, totalLength) / totalLength);
+    
+    return 0.0f;
 }
 
 void AudioEngine::setBPM(int bpm)
