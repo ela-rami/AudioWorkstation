@@ -27,7 +27,7 @@ public:
         fileInfoLabel.setJustificationType(juce::Justification::centredLeft);
         addAndMakeVisible(fileInfoLabel);
         
-        // Slider volume
+        // Slider volume - ALLUNGATO
         volumeSlider.setSliderStyle(juce::Slider::LinearHorizontal);
         volumeSlider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
         volumeSlider.setRange(0.0, 1.0);
@@ -35,15 +35,15 @@ public:
         volumeSlider.setColour(juce::Slider::trackColourId, trackColour);
         addAndMakeVisible(volumeSlider);
         
-        // Pulsanti controllo
+        // Pulsanti controllo - Corretti con testi ASCII standard
         configureButton(muteButton, "M");
         configureButton(soloButton, "S");
-        configureButton(eqButton, "EQ");
-        configureButton(deleteButton, "✕");
+        configureButton(eqButton, "...");  // Per adattarsi meglio ai bottoni tondi
+        configureButton(deleteButton, "X");  // Per eliminare la traccia
         
         // Etichetta volume
-        volumeLabel.setText("🔊", juce::dontSendNotification);
-        volumeLabel.setFont(juce::Font().withHeight(16.0f));
+        volumeLabel.setText("VOL", juce::dontSendNotification);
+        volumeLabel.setFont(juce::Font().withHeight(14.0f));
         volumeLabel.setColour(juce::Label::textColourId, juce::Colours::lightgrey);
         addAndMakeVisible(volumeLabel);
         
@@ -135,9 +135,9 @@ public:
             // Area pulsanti 
             auto controlsArea = bounds;
             
-            // Volume
-            auto volumeArea = controlsArea.removeFromLeft(120);
-            volumeLabel.setBounds(volumeArea.removeFromLeft(20).withHeight(30).withY(bounds.getCentreY() - 15));
+            // Volume - ALLUNGATO
+            auto volumeArea = controlsArea.removeFromLeft(200);  // Ampio volume slider
+            volumeLabel.setBounds(volumeArea.removeFromLeft(30).withHeight(30).withY(bounds.getCentreY() - 15));
             volumeSlider.setBounds(volumeArea.withHeight(30).withY(bounds.getCentreY() - 15));
             
             // Pulsanti

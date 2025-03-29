@@ -16,7 +16,7 @@ public:
         projectNameLabel.setColour(juce::Label::backgroundColourId, juce::Colour(0x20FFFFFF));
         addAndMakeVisible(projectNameLabel);
         
-        // Controlli BPM
+        // Controlli BPM - senza etichetta BPM
         bpmEditor.setText("125", juce::dontSendNotification);
         bpmEditor.setFont(juce::Font().withHeight(16.0f));
         bpmEditor.setJustificationType(juce::Justification::centred);
@@ -30,13 +30,6 @@ public:
             }
         };
         addAndMakeVisible(bpmEditor);
-        
-        // Etichetta BPM
-        bpmLabel.setText("BPM", juce::dontSendNotification);
-        bpmLabel.setFont(juce::Font().withHeight(14.0f));
-        bpmLabel.setColour(juce::Label::textColourId, juce::Colours::lightgrey);
-        bpmLabel.setJustificationType(juce::Justification::centredLeft);
-        addAndMakeVisible(bpmLabel);
         
         // Controlli chiave
         keyEditor.setText("C Minor", juce::dontSendNotification);
@@ -78,8 +71,8 @@ public:
         addAndMakeVisible(volumeSlider);
         
         // Etichetta volume
-        volumeLabel.setText("🔊", juce::dontSendNotification);
-        volumeLabel.setFont(juce::Font().withHeight(16.0f));
+        volumeLabel.setText("VOL", juce::dontSendNotification);
+        volumeLabel.setFont(juce::Font().withHeight(14.0f));
         volumeLabel.setColour(juce::Label::textColourId, juce::Colours::lightgrey);
         addAndMakeVisible(volumeLabel);
         
@@ -97,39 +90,37 @@ public:
     
     void resized() override
     {
-        auto bounds = getLocalBounds().reduced(12); // Aumentato padding da 10 a 12
+        auto bounds = getLocalBounds().reduced(12);
         
         // Layout orizzontale
-        projectNameLabel.setBounds(bounds.removeFromLeft(180).reduced(3)); // Larghezza aumentata e padding
-        bounds.removeFromLeft(15); // Più spazio tra elementi
+        projectNameLabel.setBounds(bounds.removeFromLeft(180).reduced(3));
+        bounds.removeFromLeft(15);
         
-        // BPM
-        auto bpmBounds = bounds.removeFromLeft(80).reduced(3); // Larghezza aumentata
-        bpmEditor.setBounds(bpmBounds);
-        bpmLabel.setBounds(bpmBounds.translated(0, -20).withHeight(20)); // Posizione etichetta
+        // BPM senza etichetta
+        bpmEditor.setBounds(bounds.removeFromLeft(80).reduced(3));
         bounds.removeFromLeft(15);
         
         // Key
-        keyEditor.setBounds(bounds.removeFromLeft(120).reduced(3)); // Larghezza aumentata
+        keyEditor.setBounds(bounds.removeFromLeft(120).reduced(3));
         bounds.removeFromLeft(15);
         
-        // Play Button - pulsante più grande
+        // Play Button
         playButton.setBounds(bounds.removeFromLeft(50).reduced(3));
         bounds.removeFromLeft(25);
         
-        // Volume - slider più largo
-        auto volumeBounds = bounds.removeFromLeft(150);
-        volumeLabel.setBounds(volumeBounds.removeFromLeft(25));
+        // Volume - slider più ampio
+        auto volumeBounds = bounds.removeFromLeft(250);
+        volumeLabel.setBounds(volumeBounds.removeFromLeft(30));
         volumeSlider.setBounds(volumeBounds);
         bounds.removeFromLeft(25);
         
-        // Save Button - pulsante più largo
+        // Save Button
         saveButton.setBounds(bounds.removeFromRight(140).reduced(3));
     }
     
     void updatePlayButtonIcon(bool isPlaying)
     {
-        playButton.setButtonText(isPlaying ? "⏸" : "▶");
+        playButton.setButtonText(isPlaying ? "||" : ">");
     }
     
 private:
@@ -137,10 +128,7 @@ private:
     bool isPlaying = false;
     
     juce::Label projectNameLabel;
-    
     juce::Label bpmEditor;
-    juce::Label bpmLabel;
-    
     juce::Label keyEditor;
     
     juce::TextButton playButton;

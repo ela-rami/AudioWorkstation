@@ -41,7 +41,7 @@ public:
         addTrackButton.onClick = [this] { addNewTrack(); };
         addAndMakeVisible(addTrackButton);
         
-        // Impostazione delle dimensioni di default - AUMENTATE PER DARE PIÙ SPAZIO
+        // Impostazione delle dimensioni di default
         setSize(1600, 900);
     }
 
@@ -67,14 +67,14 @@ public:
     {
         auto bounds = getLocalBounds();
         
-        // Sidebar (larghezza fissa)
+        // Sidebar (larghezza variabile a seconda dello stato)
         sidebar.setBounds(0, 0, sidebarWidth, bounds.getHeight());
         
         // Area principale
         auto mainArea = bounds.withTrimmedLeft(sidebarWidth);
         
         // Pannello trasporto
-        transportPanel.setBounds(mainArea.removeFromTop(60));
+        transportPanel.setBounds(mainArea.removeFromTop(70));
         
         // Pulsante Add Track
         auto addTrackButtonBounds = mainArea.removeFromBottom(60);
@@ -191,11 +191,10 @@ public:
     }
 
     // SidebarComponent::Listener
-    void sidebarToggleRequested() override
+    void sidebarToggleRequested(bool isNowCollapsed) override
     {
-        // Toggle della sidebar (collassa/espandi)
-        sidebarCollapsed = !sidebarCollapsed;
-        sidebarWidth = sidebarCollapsed ? 60 : 220;
+        // Modifica larghezza sidebar in base al nuovo stato
+        sidebarWidth = isNowCollapsed ? 50 : 220;
         resized(); // Ridimensiona tutto
     }
 
@@ -235,7 +234,6 @@ private:
     
     // Sidebar
     SidebarComponent sidebar;
-    bool sidebarCollapsed = false;
     int sidebarWidth = 220;
     
     // Pannello trasporto

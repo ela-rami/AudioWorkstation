@@ -5,7 +5,7 @@
 class SidebarComponent : public juce::Component
 {
 public:
-    SidebarComponent()
+    SidebarComponent() : isCollapsed(false)
     {
         // Titolo browser
         browserTitleLabel.setText("BROWSER", juce::dontSendNotification);
@@ -14,17 +14,17 @@ public:
         browserTitleLabel.setJustificationType(juce::Justification::centredLeft);
         addAndMakeVisible(browserTitleLabel);
         
-        // Pulsante toggle
+        // Pulsante toggle 
         toggleButton.setButtonText("<");
         toggleButton.onClick = [this] { toggleSidebar(); };
         addAndMakeVisible(toggleButton);
         
-        // Categorie
+        // Categorie - testo semplice senza simboli
         setupCategory(filesButton, "Files");
         setupCategory(favoritesButton, "Favorites");
         setupCategory(recentButton, "Recent");
         
-        // Cartelle (mockup)
+        // Cartelle (mockup) - solo nomi senza simboli
         addFolderButton("Drum Loops");
         addFolderButton("Bass Lines");
         addFolderButton("Melodies");
@@ -40,29 +40,54 @@ public:
     
     void resized() override
     {
-        auto bounds = getLocalBounds().reduced(10);
-        
-        // Titolo e pulsante toggle
-        auto headerArea = bounds.removeFromTop(30);
-        browserTitleLabel.setBounds(headerArea.removeFromLeft(100));
-        toggleButton.setBounds(headerArea.removeFromRight(30));
-        
-        bounds.removeFromTop(10);
-        
-        // Categorie
-        filesButton.setBounds(bounds.removeFromTop(30));
-        bounds.removeFromTop(10);
-        favoritesButton.setBounds(bounds.removeFromTop(30));
-        bounds.removeFromTop(10);
-        recentButton.setBounds(bounds.removeFromTop(30));
-        bounds.removeFromTop(20);
-        
-        // Cartelle
-        auto foldersBounds = bounds.removeFromTop(270);
-        for (auto* button : folderButtons)
+        if (isCollapsed)
         {
-            button->setBounds(foldersBounds.removeFromTop(30));
-            foldersBounds.removeFromTop(10);
+            // Versione collassata: mostra solo una striscia sottile con il pulsante toggle
+            toggleButton.setBounds(10, 10, 30, 30);
+            
+            // Nascondi gli altri componenti
+            browserTitleLabel.setVisible(false);
+            filesButton.setVisible(false);
+            favoritesButton.setVisible(false);
+            recentButton.setVisible(false);
+            
+            for (auto* button : folderButtons)
+                button->setVisible(false);
+        }
+        else
+        {
+            // Versione espansa: mostra tutti i componenti
+            auto bounds = getLocalBounds().reduced(10);
+            
+            // Titolo e pulsante toggle
+            auto headerArea = bounds.removeFromTop(30);
+            browserTitleLabel.setBounds(headerArea.removeFromLeft(100));
+            toggleButton.setBounds(headerArea.removeFromRight(30));
+            
+            // Tutti i componenti sono visibili
+            browserTitleLabel.setVisible(true);
+            filesButton.setVisible(true);
+            favoritesButton.setVisible(true);
+            recentButton.setVisible(true);
+            
+            bounds.removeFromTop(10);
+            
+            // Categorie
+            filesButton.setBounds(bounds.removeFromTop(30));
+            bounds.removeFromTop(10);
+            favoritesButton.setBounds(bounds.removeFromTop(30));
+            bounds.removeFromTop(10);
+            recentButton.setBounds(bounds.removeFromTop(30));
+            bounds.removeFromTop(20);
+            
+            // Cartelle
+            auto foldersBounds = bounds.removeFromTop(270);
+            for (auto* button : folderButtons)
+            {
+                button->setVisible(true);
+                button->setBounds(foldersBounds.removeFromTop(30));
+                foldersBounds.removeFromTop(10);
+            }
         }
     }
     
@@ -70,7 +95,7 @@ public:
     {
     public:
         virtual ~Listener() = default;
-        virtual void sidebarToggleRequested() = 0;
+        virtual void sidebarToggleRequested(bool isNowCollapsed) = 0;
     };
     
     void addListener(Listener* listener)
@@ -81,6 +106,21 @@ public:
     void removeListener(Listener* listener)
     {
         listeners.remove(listener);
+    }
+    
+    // Per consentire al MainComponent di impostare lo stato collassato
+    void setCollapsed(bool shouldBeCollapsed)
+    {
+        if (isCollapsed != shouldBeCollapsed)
+        {
+            isCollapsed = shouldBeCollapsed;
+            
+            // Aggiorna il testo del pulsante
+            toggleButton.setButtonText(isCollapsed ? ">" : "<");
+            
+            resized();
+            repaint();
+        }
     }
     
 private:
@@ -95,7 +135,8 @@ private:
     void addFolderButton(const juce::String& name)
     {
         auto* button = new juce::TextButton();
-        button->setButtonText("📁 " + name);
+        // Usa solo il nome senza simboli né trattini
+        button->setButtonText(name); 
         button->setColour(juce::TextButton::buttonColourId, juce::Colour(0xff252537));
         button->setColour(juce::TextButton::textColourOffId, juce::Colours::lightgrey);
         addAndMakeVisible(button);
@@ -105,7 +146,15 @@ private:
     
     void toggleSidebar()
     {
-        listeners.call(&Listener::sidebarToggleRequested);
+        isCollapsed = !isCollapsed;
+        
+        // Aggiorna il testo del pulsante
+        toggleButton.setButtonText(isCollapsed ? ">" : "<");
+        
+        resized();
+        repaint();
+        
+        listeners.call(&Listener::sidebarToggleRequested, isCollapsed);
     }
     
     juce::Label browserTitleLabel;
@@ -117,6 +166,8 @@ private:
     
     juce::OwnedArray<juce::TextButton> folderButtons;
     juce::ListenerList<Listener> listeners;
+    
+    bool isCollapsed;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SidebarComponent)
 };
