@@ -1,14 +1,14 @@
 # ninja log v6
-138	11775	1742758555754757011	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core.mm.o	c00a2d10358b33f6
-135	6749	1742758555751917484	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/juce_build_tools/juce_build_tools.cpp.o	3f214ade61dd0581
-136	17120	1742758555752413820	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o	e52b81f0d4e9e9c7
-137	7811	1742758555753818942	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_events/juce_events.mm.o	eed76028f1c638c0
-32356	32779	1742758587972501777	extras/Build/juceaide/juceaide_artefacts/Debug/juceaide	6335dc5e77ca86aa
-135	32355	1742758555752125711	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_gui_basics/juce_gui_basics.mm.o	1d2d3a04fb06cff5
-139	4714	1742758555756087386	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_data_structures/juce_data_structures.mm.o	26b7a35d91c47329
-135	6918	1742758555751604657	extras/Build/juceaide/CMakeFiles/juceaide.dir/Main.cpp.o	5e0fc2c6198349f1
-137	283	1742758555754239874	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core_CompilationTime.cpp.o	6f07103a1e028782
-136	17273	1742758555752895820	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics.mm.o	d2df3e04d13902ef
-8	116	1743210172007393252	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/JUCE/tools/CMakeFiles/cmake.verify_globs	e04abcef2708f291
 136	608	1742758555752688070	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics_Sheenbidi.c.o	cc6520e0f55a10e1
-7	110	1743210771686384302	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/JUCE/tools/CMakeFiles/cmake.verify_globs	e04abcef2708f291
+5	98	1743435611365352423	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/JUCE/tools/CMakeFiles/cmake.verify_globs	e04abcef2708f291
+136	17273	1742758555752895820	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics.mm.o	d2df3e04d13902ef
+137	283	1742758555754239874	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core_CompilationTime.cpp.o	6f07103a1e028782
+135	6918	1742758555751604657	extras/Build/juceaide/CMakeFiles/juceaide.dir/Main.cpp.o	5e0fc2c6198349f1
+139	4714	1742758555756087386	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_data_structures/juce_data_structures.mm.o	26b7a35d91c47329
+135	32355	1742758555752125711	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_gui_basics/juce_gui_basics.mm.o	1d2d3a04fb06cff5
+32356	32779	1742758587972501777	extras/Build/juceaide/juceaide_artefacts/Debug/juceaide	6335dc5e77ca86aa
+137	7811	1742758555753818942	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_events/juce_events.mm.o	eed76028f1c638c0
+136	17120	1742758555752413820	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_graphics/juce_graphics_Harfbuzz.cpp.o	e52b81f0d4e9e9c7
+135	6749	1742758555751917484	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/juce_build_tools/juce_build_tools.cpp.o	3f214ade61dd0581
+138	11775	1742758555754757011	extras/Build/juceaide/CMakeFiles/juceaide.dir/__/__/__/modules/juce_core/juce_core.mm.o	c00a2d10358b33f6
+4	83	1743435691425198238	/Users/eliasmathiasramirez/Documents/GitHub/AudioWorkstation/build/JUCE/tools/CMakeFiles/cmake.verify_globs	e04abcef2708f291

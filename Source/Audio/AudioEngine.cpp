@@ -2,137 +2,174 @@
 
 AudioEngine::AudioEngine()
 {
-    // Register supported audio formats
     formatManager.registerBasicFormats();
-    
-    // Configure the transport source
-    transportSource.addChangeListener(this);
-
-    // Start the audio thread
-    thread.startThread();
-    
-    // Initialize the audio system
-    setAudioChannels(0, 2); // 0 inputs, 2 outputs (stereo)
+    thread.startThread(juce::Thread::Priority::normal);
+    setAudioChannels(0, 2);
 }
 
 AudioEngine::~AudioEngine()
 {
-    // Close the audio system
     shutdownAudio();
-
-    // Stop the audio thread
-    transportSource.setSource(nullptr);
-    thread.stopThread(500); // 500ms timeout
+    mixerSource.removeAllInputs();
+    trackSources.clear();
+    thread.stopThread(1000);
 }
 
 void AudioEngine::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    // Prepare the transport source
-    transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    mixerSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void AudioEngine::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    if (readerSource.get() == nullptr)
+    const juce::ScopedLock lock(sourceLock);
+
+    // CORREZIONE DEFINITIVA: Rimosso il check sul numero di sorgenti.
+    // Se l'engine non sta suonando, esci. Il mixer gestirà correttamente 0 sorgenti.
+    if (!engineIsPlaying)
     {
-        // No file loaded, generate silence
         bufferToFill.clearActiveBufferRegion();
         return;
     }
-    
-    // Get audio from the transport source
-    transportSource.getNextAudioBlock(bufferToFill);
+
+    // Chiedi al mixer di riempire il buffer.
+    mixerSource.getNextAudioBlock(bufferToFill);
 }
 
 void AudioEngine::releaseResources()
 {
-    transportSource.releaseResources();
+    mixerSource.releaseResources();
 }
 
-void AudioEngine::changeListenerCallback(juce::ChangeBroadcaster* source)
+bool AudioEngine::loadFile(const juce::File& file, int trackId)
 {
-    if (source == &transportSource)
-    {
-        if (transportSource.isPlaying())
-            listeners.call(&Listener::playbackStarted);
-        else
-            listeners.call(&Listener::playbackStopped);
-    }
-}
+    juce::Logger::writeToLog("AudioEngine: Loading file: " + file.getFullPathName() + " for track " + juce::String(trackId));
 
-bool AudioEngine::loadFile(const juce::File& file)
-{
-    juce::Logger::writeToLog("AudioEngine: Tentativo di caricamento file: " + file.getFullPathName());
-
-    // Verifica che il file esista
     if (!file.existsAsFile())
     {
-        juce::Logger::writeToLog("AudioEngine::loadFile - File non esiste: " + file.getFullPathName());
+        juce::Logger::writeToLog("AudioEngine Error: File does not exist: " + file.getFullPathName());
         return false;
     }
-    
-    // Interrompi la riproduzione corrente
-    transportSource.stop();
-    transportSource.setSource(nullptr);
-    readerSource.reset();
-    
-    // Crea un lettore per il file
+
     auto* reader = formatManager.createReaderFor(file);
-    
     if (reader == nullptr)
     {
-        juce::Logger::writeToLog("AudioEngine::loadFile - Impossibile creare reader per: " + file.getFullPathName());
+        juce::Logger::writeToLog("AudioEngine Error: Cannot create reader for: " + file.getFullPathName());
         return false;
     }
-    
-    // Crea sorgente dal reader
-    readerSource = std::make_unique<juce::AudioFormatReaderSource>(reader, true);
-    
-    // Imposta il looping per riproduzione continua
-    readerSource->setLooping(true);
-    
-    // Configura la sorgente di trasporto
-    transportSource.setSource(readerSource.get(), 
-                              32768,                 // dimensione buffer prefetch
-                              &thread,               // thread di lettura
-                              reader->sampleRate);   // sample rate originale
-    
-    // Notifica i listener
-    juce::MessageManager::callAsync([this, file, reader]() {
-        listeners.call(&Listener::fileLoaded, file, reader->sampleRate, reader->numChannels);
+
+    TrackAudioSource newSource;
+    newSource.reader = std::unique_ptr<juce::AudioFormatReader>(reader);
+    newSource.readerSource = std::make_unique<juce::AudioFormatReaderSource>(newSource.reader.get(), false);
+    newSource.transportSource = std::make_unique<juce::AudioTransportSource>();
+
+    newSource.readerSource->setLooping(true);
+    newSource.transportSource->setSource(newSource.readerSource.get(),
+                                         32768,
+                                         &thread,
+                                         reader->sampleRate);
+
+    {
+        const juce::ScopedLock lock(sourceLock);
+        removeTrackAudio_internal(trackId);
+        mixerSource.addInputSource(newSource.transportSource.get(), false);
+        trackSources[trackId] = std::move(newSource);
+
+         if (engineIsPlaying)
+         {
+             if (auto* transport = trackSources[trackId].transportSource.get())
+             {
+                 transport->start();
+             }
+         }
+    }
+
+    juce::Logger::writeToLog("AudioEngine: File loaded successfully for track " + juce::String(trackId));
+
+    juce::MessageManager::callAsync([this, file, trackId]() {
+        listeners.call(&Listener::fileLoaded, file, trackId);
     });
-    
-    juce::Logger::writeToLog("AudioEngine: File caricato con successo: " + file.getFullPathName());
+
     return true;
 }
 
+void AudioEngine::removeTrackAudio_internal(int trackId)
+{
+     auto it = trackSources.find(trackId);
+     if (it != trackSources.end())
+     {
+         juce::Logger::writeToLog("AudioEngine: Removing audio source for track " + juce::String(trackId) + " (internal)");
+         auto* transport = it->second.transportSource.get();
+         if (transport)
+         {
+             mixerSource.removeInputSource(transport);
+             transport->stop();
+             transport->setSource(nullptr);
+         }
+          trackSources.erase(it);
+          juce::Logger::writeToLog("AudioEngine: Track " + juce::String(trackId) + " removed from map.");
+     }
+}
+
+void AudioEngine::removeTrackAudio(int trackId)
+{
+    const juce::ScopedLock lock(sourceLock);
+    juce::Logger::writeToLog("AudioEngine: Request to remove audio for track " + juce::String(trackId));
+    removeTrackAudio_internal(trackId);
+}
+
+
 void AudioEngine::play()
 {
-    if (readerSource.get() == nullptr)
-        return;
-    
-    transportSource.start();
+    if (!engineIsPlaying)
+    {
+        const juce::ScopedLock lock(sourceLock);
+        engineIsPlaying = true;
+        for (auto const& [id, source] : trackSources)
+        {
+            if (source.transportSource)
+            {
+                 source.transportSource->start();
+            }
+        }
+        juce::Logger::writeToLog("AudioEngine: Playback started.");
+    }
 }
 
 void AudioEngine::stop()
 {
-    transportSource.stop();
+    if (engineIsPlaying)
+    {
+        const juce::ScopedLock lock(sourceLock);
+        engineIsPlaying = false;
+        for (auto const& [id, source] : trackSources)
+        {
+            if (source.transportSource)
+                source.transportSource->stop();
+        }
+        juce::Logger::writeToLog("AudioEngine: Playback stopped.");
+    }
 }
 
-float AudioEngine::getPositionRelative() const
+float AudioEngine::getPositionRelative(int trackId) const
 {
-    if (readerSource.get() == nullptr)
-        return 0.0f;
-    
-    // Calcola la posizione relativa tenendo conto del looping
-    auto currentPosition = transportSource.getCurrentPosition();
-    auto totalLength = transportSource.getLengthInSeconds();
-    
-    // Se il file è in loop, manteniamo la posizione relativa tra 0.0 e 1.0
-    if (totalLength > 0.0)
-        return static_cast<float>(std::fmod(currentPosition, totalLength) / totalLength);
-    
+    auto it = trackSources.find(trackId);
+    if (it != trackSources.end() && it->second.transportSource)
+    {
+        auto* transport = it->second.transportSource.get();
+        auto totalLength = transport->getLengthInSeconds();
+        if (totalLength > 0.0)
+        {
+            auto currentPosition = transport->getCurrentPosition();
+            return static_cast<float>(std::fmod(currentPosition, totalLength) / totalLength);
+        }
+    }
     return 0.0f;
+}
+
+bool AudioEngine::isPlaying() const
+{
+    return engineIsPlaying;
 }
 
 void AudioEngine::setBPM(int bpm)
@@ -140,21 +177,17 @@ void AudioEngine::setBPM(int bpm)
     if (bpm > 0 && bpm != currentBPM)
     {
         currentBPM = bpm;
-        
-        // Time stretching will be implemented here
-        
+        juce::Logger::writeToLog("AudioEngine: BPM set to " + juce::String(currentBPM));
         listeners.call(&Listener::bpmChanged, currentBPM);
     }
 }
 
 void AudioEngine::setKey(const juce::String& key)
 {
-    if (key != currentKey)
+    if (key.isNotEmpty() && key != currentKey)
     {
         currentKey = key;
-        
-        // Pitch shifting will be implemented here
-        
+        juce::Logger::writeToLog("AudioEngine: Key set to " + currentKey);
         listeners.call(&Listener::keyChanged, currentKey);
     }
 }
@@ -168,3 +201,6 @@ void AudioEngine::removeListener(Listener* listener)
 {
     listeners.remove(listener);
 }
+
+// --- Dichiarazione della funzione helper interna nel file .h ---
+// void AudioEngine::removeTrackAudio_internal(int trackId); // Già dichiarata in .h

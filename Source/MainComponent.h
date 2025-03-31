@@ -14,51 +14,39 @@ class MainComponent : public juce::Component,
                       public SidebarComponent::Listener
 {
 public:
-    MainComponent()
+    MainComponent() : transportPanel(audioEngine)
     {
-        // Impostazione del look and feel personalizzato
         lookAndFeel = std::make_unique<ModernLookAndFeel>();
         juce::LookAndFeel::setDefaultLookAndFeel(lookAndFeel.get());
-        
-        // Registra questo componente come ascoltatore dell'audio engine
         audioEngine.addListener(this);
-        
-        // Configura la sidebar
         sidebar.addListener(this);
         addAndMakeVisible(sidebar);
-        
-        // Configura il pannello trasporto
         addAndMakeVisible(transportPanel);
-        
-        // Configura il contenitore delle tracce
         tracksViewport.setViewedComponent(&tracksContainer, false);
-        tracksViewport.setScrollBarsShown(true, false);
+        tracksViewport.setScrollBarsShown(true, true);
         addAndMakeVisible(tracksViewport);
-        
-        // Pulsante aggiungi traccia
+        tracksContainer.setPaintingIsUnclipped(true);
         addTrackButton.setButtonText("+ Add Track");
         addTrackButton.setColour(juce::TextButton::buttonColourId, juce::Colour(0x20FFFFFF));
         addTrackButton.onClick = [this] { addNewTrack(); };
         addAndMakeVisible(addTrackButton);
-        
-        // Impostazione delle dimensioni di default
         setSize(1600, 900);
     }
 
     ~MainComponent() override
     {
         audioEngine.removeListener(this);
+        sidebar.removeListener(this);
         juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
     }
 
     void paint(juce::Graphics& g) override
     {
-        // Gradiente di sfondo
-        juce::ColourGradient gradient(
-            juce::Colour(0xff1a1a2e), 0.0f, 0.0f,
-            juce::Colour(0xff121212), static_cast<float>(getWidth()), static_cast<float>(getHeight()),
-            false);
-            
+        juce::Colour color1 = juce::Colour(0xff10101b);
+        juce::Colour color2 = juce::Colour(0xff2a2a3a);
+        juce::Colour color3 = juce::Colour(0xff1a1a2e);
+        juce::ColourGradient gradient = juce::ColourGradient::vertical(color1, 0.0f, color3, (float)getHeight());
+        gradient.addColour(0.5, color2);
         g.setGradientFill(gradient);
         g.fillAll();
     }
@@ -66,186 +54,165 @@ public:
     void resized() override
     {
         auto bounds = getLocalBounds();
-        
-        // Sidebar (larghezza variabile a seconda dello stato)
-        sidebar.setBounds(0, 0, sidebarWidth, bounds.getHeight());
-        
-        // Area principale
-        auto mainArea = bounds.withTrimmedLeft(sidebarWidth);
-        
-        // Pannello trasporto
+        sidebar.setBounds(bounds.removeFromLeft(sidebarWidth));
+        auto mainArea = bounds;
         transportPanel.setBounds(mainArea.removeFromTop(70));
-        
-        // Pulsante Add Track
-        auto addTrackButtonBounds = mainArea.removeFromBottom(60);
-        addTrackButton.setBounds(juce::Rectangle<int>(180, 40)
-                                .withCentre(addTrackButtonBounds.getCentre()));
-        
-        // Contenitore tracce
-        tracksViewport.setBounds(mainArea);
-        
-        // Aggiorna le dimensioni del contenitore delle tracce
+        auto addTrackButtonArea = mainArea.removeFromBottom(60);
+        addTrackButton.setBounds(addTrackButtonArea.withSizeKeepingCentre(180, 40));
+        tracksViewport.setBounds(mainArea.reduced(10));
         updateTracksLayout();
     }
 
     bool isInterestedInFileDrag(const juce::StringArray& files) override
     {
-        // Accetta solo file audio
         for (auto& file : files)
         {
-            if (file.endsWithIgnoreCase(".wav") || 
-                file.endsWithIgnoreCase(".mp3") || 
-                file.endsWithIgnoreCase(".aiff") || 
-                file.endsWithIgnoreCase(".ogg"))
+            juce::File f(file);
+            if (f.hasFileExtension(".wav") || f.hasFileExtension(".mp3") ||
+                f.hasFileExtension(".aiff") || f.hasFileExtension(".aif") ||
+                f.hasFileExtension(".ogg") || f.hasFileExtension(".flac"))
                 return true;
         }
-        
         return false;
     }
 
     void filesDropped(const juce::StringArray& files, int x, int y) override
     {
-        // Converti le coordinate dal sistema di questo componente a quello del contenitore tracce
-        juce::Point<int> relativePoint = getLocalPoint(&tracksContainer, juce::Point<int>(x, y));
-        
-        // Trova la traccia sotto il punto di drop, o crea una nuova traccia
+        // CORREZIONE: Specifica Point<int> per risolvere ambiguità
+        auto tracksContainerPos = tracksContainer.getLocalPoint(this, juce::Point<int>(x, y));
+
         TrackComponent* targetTrack = nullptr;
-        
         for (auto* track : tracks)
         {
-            if (track->getBounds().contains(relativePoint))
+            if (track->getBoundsInParent().contains(tracksContainerPos))
             {
                 targetTrack = track;
                 break;
             }
         }
-        
+
         if (targetTrack == nullptr)
         {
-            // Se non è stato trovato un target, aggiungi una nuova traccia
-            targetTrack = addNewTrack();
+             juce::Logger::writeToLog("File dropped outside a track, creating a new one.");
+             targetTrack = addNewTrack();
+             if (targetTrack)
+                 tracksViewport.setViewPosition(0, targetTrack->getY());
         }
-        
-        // Carica il file nella traccia
-        if (targetTrack != nullptr && files.size() > 0)
+
+        if (targetTrack != nullptr && !files.isEmpty())
         {
             juce::File file(files[0]);
-            if (file.existsAsFile())
+            if (file.existsAsFile() && isInterestedInFileDrag({file.getFullPathName()}))
             {
+                juce::Logger::writeToLog("Loading dropped file '" + file.getFileName() + "' into track " + juce::String(targetTrack->getTrackNumber()));
                 targetTrack->loadFile(file);
-                audioEngine.loadFile(file);
+                audioEngine.loadFile(file, targetTrack->getTrackNumber());
+            }
+            else {
+                 juce::Logger::writeToLog("Dropped file is not a valid audio file or doesn't exist.");
             }
         }
     }
 
-    // AudioEngine::Listener
-    void fileLoaded(const juce::File& file, double sampleRate, int numChannels) override
+    // --- Callback da AudioEngine::Listener ---
+    void fileLoaded(const juce::File& file, int trackId) override
     {
-        // Se non abbiamo tracce, crea una nuova traccia e carica il file
-        if (tracks.isEmpty())
-        {
-            auto* track = addNewTrack();
-            track->loadFile(file);
-        }
+        juce::Logger::writeToLog("MainComponent notified: File loaded for track " + juce::String(trackId));
     }
 
-    void playbackStarted() override
-    {
-        transportPanel.updatePlayButtonIcon(true);
+    void bpmChanged(int newBpm) override {
+        juce::Logger::writeToLog("MainComponent notified: BPM changed to " + juce::String(newBpm));
     }
 
-    void playbackStopped() override
-    {
-        transportPanel.updatePlayButtonIcon(false);
+    void keyChanged(const juce::String& newKey) override {
+         juce::Logger::writeToLog("MainComponent notified: Key changed to " + newKey);
     }
 
-    // TrackComponent::Listener
-    void trackRemovalRequested(TrackComponent* track) override
+
+    // --- Callback da TrackComponent::Listener ---
+    void trackRemovalRequested(TrackComponent* trackToRemove) override
     {
-        // Trova l'indice della traccia
-        int trackIndex = tracks.indexOf(track);
-        
+        if (trackToRemove == nullptr) return;
+
+        int trackIdToRemove = trackToRemove->getTrackNumber();
+        juce::Logger::writeToLog("MainComponent: Requesting removal of track ID " + juce::String(trackIdToRemove));
+
+        audioEngine.removeTrackAudio(trackIdToRemove);
+
+        int trackIndex = tracks.indexOf(trackToRemove);
         if (trackIndex >= 0)
         {
-            // Rimuovi la traccia dalla lista
-            tracks.remove(trackIndex);
-            
-            // Rinumera le tracce rimanenti
-            for (int i = 0; i < tracks.size(); ++i)
-            {
-                // Dovresti avere un metodo per aggiornare il numero della traccia
-                // Ad esempio: tracks[i]->setTrackNumber(i + 1);
-                // Per ora, ricrea semplicemente la traccia
-                delete tracks[i];
-                tracks.set(i, nullptr);
-                
-                auto* newTrack = new TrackComponent(i + 1, audioEngine);
-                newTrack->addListener(this);
-                tracks.set(i, newTrack);
-                tracksContainer.addAndMakeVisible(newTrack);
-            }
-            
-            // Aggiorna il layout
-            updateTracksLayout();
+             juce::Logger::writeToLog("MainComponent: Found track at index " + juce::String(trackIndex) + ". Removing from UI and list.");
+             tracksContainer.removeChildComponent(tracks[trackIndex]);
+             tracks.remove(trackIndex, true); // true = delete the object
+             updateTracksLayout();
+             juce::Logger::writeToLog("MainComponent: Track removal complete.");
+        }
+        else
+        {
+             juce::Logger::writeToLog("MainComponent Error: Track to remove not found in the list!");
+             if (trackToRemove->getParentComponent() == &tracksContainer)
+                 tracksContainer.removeChildComponent(trackToRemove);
         }
     }
 
-    // SidebarComponent::Listener
+    // --- Callback da SidebarComponent::Listener ---
     void sidebarToggleRequested(bool isNowCollapsed) override
     {
-        // Modifica larghezza sidebar in base al nuovo stato
         sidebarWidth = isNowCollapsed ? 50 : 220;
-        resized(); // Ridimensiona tutto
+        resized();
     }
 
 private:
     TrackComponent* addNewTrack()
     {
-        auto* track = new TrackComponent(tracks.size() + 1, audioEngine);
+        static int nextTrackId = 1;
+        const int newTrackId = nextTrackId++;
+
+        juce::Logger::writeToLog("MainComponent: Adding new track with ID " + juce::String(newTrackId));
+
+        auto* track = new TrackComponent(newTrackId, audioEngine);
         track->addListener(this);
         tracks.add(track);
         tracksContainer.addAndMakeVisible(track);
-        
         updateTracksLayout();
-        
+        tracksViewport.setViewPosition(0, tracksContainer.getHeight() - track->getHeight() - 10);
+
         return track;
     }
-    
+
     void updateTracksLayout()
     {
         const int trackHeight = 140;
         const int trackSpacing = 10;
-        
-        // Posiziona le tracce verticalmente
-        int yPos = 10;
+        const int startX = 10;
+        const int startY = 10;
+        const int availableWidth = tracksViewport.getMaximumVisibleWidth() - startX - (tracksViewport.isVerticalScrollBarShown() ? tracksViewport.getScrollBarThickness() : 0);
+
+        int currentY = startY;
         for (auto* track : tracks)
         {
-            track->setBounds(10, yPos, tracksViewport.getMaximumVisibleWidth() - 20, trackHeight);
-            yPos += trackHeight + trackSpacing;
+            track->setBounds(startX, currentY, availableWidth, trackHeight);
+            currentY += trackHeight + trackSpacing;
         }
-        
-        // Aggiorna le dimensioni del contenitore
-        tracksContainer.setBounds(0, 0, tracksViewport.getMaximumVisibleWidth(), 
-                                  std::max(tracksViewport.getHeight(), yPos));
+
+        int totalHeight = std::max(tracksViewport.getHeight(), currentY);
+        int totalWidth = availableWidth + startX;
+        tracksContainer.setSize(totalWidth, totalHeight);
     }
-    
+
     std::unique_ptr<ModernLookAndFeel> lookAndFeel;
     AudioEngine audioEngine;
-    
-    // Sidebar
+
     SidebarComponent sidebar;
-    int sidebarWidth = 220;
-    
-    // Pannello trasporto
-    TransportPanel transportPanel{audioEngine};
-    
-    // Contenitore tracce
+    TransportPanel transportPanel;
     juce::Viewport tracksViewport;
     juce::Component tracksContainer;
-    juce::OwnedArray<TrackComponent> tracks;
-    
-    // Pulsante aggiungi traccia
     juce::TextButton addTrackButton;
-    
+
+    juce::OwnedArray<TrackComponent> tracks;
+
+    int sidebarWidth = 220;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };
